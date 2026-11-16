@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0c131d" />
+  <title>ピヨンと☆飛び石 — 3D Previz</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{color-scheme:dark;--ink:#f6f2e8;--muted:#9299a5;--lime:#d5ff65;--orange:#ff895c;--line:#303a47;--panel:rgba(13,19,28,.84)}
+    *{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0c131d;color:var(--ink);font-family:"Zen Kaku Gothic New",sans-serif}
+    body{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 24%,#283642 0,#121c27 42%,#080d14 100%)}
+    button{font:inherit;color:inherit;cursor:pointer} .app{width:min(100vw,177.78vh);height:min(100vh,56.25vw);min-height:420px;position:relative;overflow:hidden;isolation:isolate;background:#131f2a;box-shadow:0 24px 100px #0009}
+    #stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .grain{position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.12;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+    .vignette{position:absolute;inset:0;pointer-events:none;z-index:1;background:linear-gradient(180deg,#070d1690 0%,transparent 25%,transparent 65%,#070c16bf 100%),radial-gradient(ellipse at center,transparent 48%,#05091255 100%)}
+    .topbar{position:absolute;z-index:3;inset:0 0 auto;padding:26px 34px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+    .brand{display:flex;align-items:center;gap:11px}.brand-mark{width:30px;height:30px;border:1px solid #e5e4d755;border-radius:50%;display:grid;place-items:center;color:var(--lime);font-size:17px}.brand-name{font-size:11px;letter-spacing:.21em;font-weight:700}.brand-sub{font-size:9px;color:#c6c7c1;letter-spacing:.17em;margin-top:3px}
+    .tag{font-size:9px;letter-spacing:.2em;padding:8px 11px;border:1px solid #fff3;border-radius:2px;background:#0b101866;color:#e7e4d5}
+    .chapter{position:absolute;z-index:3;left:34px;top:28%;display:flex;align-items:center;gap:11px;transition:opacity .22s;pointer-events:none}.chapter-line{width:29px;height:1px;background:var(--lime)}.chapter-kicker{font-size:9px;color:var(--lime);letter-spacing:.2em;text-transform:uppercase}.chapter-title{font-weight:900;font-size:clamp(17px,2.4vw,31px);letter-spacing:.035em;text-shadow:0 3px 24px #081018aa;line-height:1.3}
+    .graphic-word{position:absolute;z-index:2;pointer-events:none;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-7deg);font-size:clamp(52px,12vw,164px);line-height:1;font-weight:900;letter-spacing:-.06em;color:var(--lime);white-space:nowrap;text-shadow:0 5px 0 #fa744f,0 14px 40px #0008;opacity:0;transition:opacity .15s}
+    .caption{position:absolute;z-index:3;left:50%;bottom:21%;transform:translateX(-50%);width:min(84%,1000px);text-align:center;pointer-events:none;text-shadow:0 3px 16px #000;transition:opacity .16s}.caption-main{font-weight:900;font-size:clamp(17px,2.7vw,34px);letter-spacing:.03em;line-height:1.35}.caption-echo{color:var(--lime);font-weight:700;font-size:clamp(11px,1.25vw,16px);margin-top:7px;letter-spacing:.08em}
+    .credit{position:absolute;z-index:3;right:34px;top:31%;max-width:170px;text-align:right;pointer-events:none;opacity:0;transition:opacity .3s}.credit-line{height:1px;width:34px;background:var(--orange);margin:0 0 10px auto}.credit-name{font-size:10px;letter-spacing:.15em;color:#ffe2bd}.credit-small{font-size:9px;color:#c5c7c6;margin-top:3px}
+    .controls{position:absolute;z-index:5;left:0;right:0;bottom:0;padding:22px 34px 19px;background:linear-gradient(0deg,#080d14f2,#080d149c 68%,transparent);}
+    .seek-wrap{height:18px;display:flex;align-items:center;position:relative;cursor:pointer;touch-action:none}.seek-bg,.seek-fill,.seek-buffer{height:2px;position:absolute;left:0;top:8px;border-radius:2px}.seek-bg{right:0;background:#ffffff36}.seek-buffer{background:#ffffff4f;width:0}.seek-fill{background:var(--lime);width:0;box-shadow:0 0 12px #d5ff657a}.seek-knob{position:absolute;top:4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--lime);transform:translateX(-50%);box-shadow:0 0 0 4px #d5ff6522}.seek-wrap:hover .seek-bg,.seek-wrap:hover .seek-fill{height:4px;top:7px}
+    .controls-row{display:flex;align-items:center;gap:14px;margin-top:9px}.play{width:37px;height:37px;border:1px solid #ffffff50;background:#f5f0e9;color:#121822;border-radius:50%;display:grid;place-items:center;font-size:14px;padding-left:3px;flex:0 0 auto}.play:hover{background:var(--lime)}.time{font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.09em;color:#e1dfd7;white-space:nowrap}.track{min-width:0;flex:1}.track-title{font-size:11px;font-weight:700;letter-spacing:.05em}.track-sub{font-size:9px;color:var(--muted);margin-top:2px}.right-controls{display:flex;align-items:center;gap:14px}.volume{width:72px;accent-color:var(--lime);height:3px}.icon-btn{border:0;background:none;color:#e9e7de;padding:6px;font-size:16px;line-height:1}.icon-btn:hover{color:var(--lime)}.sound{display:flex;align-items:center;gap:8px}.sound svg{width:16px;height:16px}
+    .chapters{display:flex;gap:5px;margin-top:15px;overflow:hidden}.chap-pill{position:relative;flex:1;min-width:0;border:1px solid #ffffff17;background:#ffffff08;color:#c2c6c4;padding:7px 8px;text-align:left;font-size:9px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.2s}.chap-pill:before{content:"";position:absolute;left:0;top:-1px;bottom:-1px;width:2px;background:transparent}.chap-pill.active{background:#d5ff6515;border-color:#d5ff6540;color:var(--lime)}.chap-pill.active:before{background:var(--lime)}
+    .audio-badge{position:absolute;z-index:4;left:34px;bottom:112px;font-size:9px;letter-spacing:.12em;color:#c5d1cd;display:flex;align-items:center;gap:7px;opacity:.75}.audio-dot{width:5px;height:5px;background:var(--lime);border-radius:50%;box-shadow:0 0 10px var(--lime)}
+    .loading{position:absolute;z-index:10;inset:0;display:grid;place-items:center;background:#101923;transition:opacity .5s}.loading.hidden{opacity:0;pointer-events:none}.loading-inner{text-align:center}.loading-logo{font-size:48px;color:var(--lime);animation:float 1.4s ease-in-out infinite}.loading-txt{font-size:10px;letter-spacing:.22em;color:#c7cac6;margin-top:12px}@keyframes float{50%{transform:translateY(-8px) rotate(10deg)}}
+    .file-hint{position:absolute;z-index:7;right:34px;bottom:112px;font-size:9px;color:#abb4b5;letter-spacing:.04em;opacity:.7}
+    @media(max-width:700px){.app{min-height:340px}.topbar{padding:16px}.chapter{left:16px;top:23%}.controls{padding:14px 16px 12px}.chapters{margin-top:9px}.chap-pill{padding:6px 4px;font-size:7px}.audio-badge{left:16px;bottom:95px}.file-hint{right:16px;bottom:95px}.credit{right:16px}.volume{width:48px}.right-controls{gap:7px}.caption{bottom:25%}.tag{font-size:8px;padding:7px}.graphic-word{top:43%}}
+  </style>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js"}}</script>
+</head>
+<body>
+<main class="app" id="app">
+  <canvas id="stage"></canvas><div class="grain"></div><div class="vignette"></div>
+  <div class="topbar"><div class="brand"><div class="brand-mark">✳</div><div><div class="brand-name">PIYON &amp; TOBIISHI</div><div class="brand-sub">A THREE.JS MUSIC VIDEO PREVIZ</div></div></div><div class="tag">FULL LENGTH · 02:11</div></div>
+  <div class="chapter"><div class="chapter-line"></div><div><div class="chapter-kicker" id="chapterKicker">01 / DRIVE</div><div class="chapter-title" id="chapterTitle">冬のハイウェイ</div></div></div>
+  <div class="graphic-word" id="graphicWord">ピヨン！</div>
+  <div class="caption"><div class="caption-main" id="captionMain">1月、キャンプへ向かう道</div><div class="caption-echo" id="captionEcho">（カモン、カモン）</div></div>
+  <div class="credit" id="credit"><div class="credit-line"></div><div class="credit-name" id="creditName">CAMERA — TRACKING</div><div class="credit-small" id="creditSmall">三分割構図 · アイレベル</div></div>
+  <div class="audio-badge"><span class="audio-dot"></span><span id="audioState">音源を読み込み中</span></div>
+  <div class="file-hint" id="fileHint">♪ 元音源を収録</div>
+  <section class="controls" aria-label="Music controls">
+    <div class="seek-wrap" id="seek" role="slider" aria-label="曲の再生位置" aria-valuemin="0" aria-valuemax="131.54" aria-valuenow="0" tabindex="0"><div class="seek-bg"></div><div class="seek-buffer" id="buffer"></div><div class="seek-fill" id="fill"></div><div class="seek-knob" id="knob"></div></div>
+    <div class="controls-row"><button class="play" id="play" aria-label="再生">▶</button><span class="time" id="now">0:00</span><span class="time" style="opacity:.4">/</span><span class="time" id="total">2:11</span><div class="track"><div class="track-title">ピヨンと☆飛び石</div><div class="track-sub">WINTER DRIVE / COMEDY ROCK</div></div><div class="right-controls"><div class="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19 6a9 9 0 0 1 0 12"/></svg><input class="volume" id="volume" type="range" min="0" max="1" step=".01" value=".82" aria-label="音量"></div><button class="icon-btn" id="record" aria-label="フル尺WebMを書き出し" title="フル尺をWebMで録画">●</button><button class="icon-btn" id="fullscreen" aria-label="全画面">⛶</button></div></div>
+    <div class="chapters" id="chapters"></div>
+  </section>
+  <div class="loading" id="loading"><div class="loading-inner"><div class="loading-logo">✳</div><div class="loading-txt">WINTER DRIVE LOADING</div></div></div>
+  <audio id="audio" preload="auto" src="assets/piyon-toishi.mp3"></audio>
+  <input id="audioFile" type="file" accept="audio/*,.mp3" hidden />
+</main>
+<script type="module">
+import * as THREE from 'three';
+
+const DURATION=131.54;
+const chapters=[
+ {id:'open',start:0,end:2.5,label:'INTRO',title:'冬のハイウェイ',camera:'DRONE → TRACKING',comp:'奥行き構図 · 低い冬の光',bg:0x8698a3,fog:0xa9b4b5},
+ {id:'v1',start:2.5,end:23,label:'VERSE 01',title:'カツン！',camera:'POV · CRASH ZOOM',comp:'額縁構図 · ガラス越し',bg:0x82939b,fog:0xb7c0bd},
+ {id:'pre1',start:23,end:33,label:'PRE-CHORUS',title:'直った…はず？',camera:'DOLLY IN',comp:'クローズアップ · 余白',bg:0x5c7280,fog:0x86959a},
+ {id:'ch1',start:33,end:56,label:'CHORUS',title:'ふっとぶ節約！',camera:'ARC SHOT · CRASH ZOOM',comp:'中央構図 · 放射構図',bg:0xd08c59,fog:0xead0a5},
+ {id:'v2',start:56,end:78,label:'VERSE 02',title:'車検で発覚',camera:'TOP SHOT → ORBIT',comp:'俯瞰構図 · シンメトリー',bg:0x546b77,fog:0x9aabb0},
+ {id:'pre2',start:78,end:89,label:'PRE-CHORUS',title:'小銭の旅立ち',camera:'TRACKING · RACK FOCUS',comp:'動きの軌跡 · 対角線',bg:0x6a8789,fog:0xb5c5ba},
+ {id:'ch2',start:89,end:111,label:'CHORUS',title:'ハートが爆破！',camera:'DOLLY ZOOM · ARC',comp:'左右対称 · 放射構図',bg:0xd26e50,fog:0xf4ad77},
+ {id:'fin',start:111,end:131.54,label:'FINALE',title:'トビイシッ！YEAH！',camera:'CRANE · HERO LOW ANGLE',comp:'シルエット · スポットライト',bg:0x243d55,fog:0x61748b}
+];
+const cues=[
+ [0,5,'1月、キャンプへ向かう道','（カモン、カモン）','v1'],[5,10,'高速走れば、カツンの音','（ナニッ！ ナニッー！）','v1'],[10,16,'フロントガラスに10円サイズ','（見ちゃった、見ちゃった、ウー！）','v1'],[16,23,'心にヒビも入るよね','（アーッ、イヤー！）','v1'],
+ [23,28,'接着剤でなおったと思ってた','（思ってた、思ってた、イエー！）','pre1'],[28,33,'でも運命のイタズラは まだ終わらない','（イエー！）','pre1'],
+ [33,38,'飛び石ひとつで ふっとぶ節約','（オー、ウー、イエー！）','ch1'],[38,43,'先月の車検 ビックリの請求','（オーマイゴーッ！）','ch1'],[43,49,'ガラス交換で サイフが大破','（バン！ バン！ バン！）','ch1'],[49,56,'こんなヒビも、笑い飛ばすしかない','（アーハ！）','ch1'],
+ [56,61,'車屋で発覚、広がったヒビ','（なんで、なんで）','v2'],[61,67,'交換必須 車検通らん ヒッスヒス...his...','（ミステリッ！）','v2'],[67,73,'古いクルマだから保険も無し','（ノープラン、ノーガード、ウー）','v2'],[73,78,'全部自腹で涙の出費','（アー！ イエー！）','v2'],
+ [78,83,'小銭ためても 飛び石ひとつで','（ピヨンと飛ぶ、ピヨンと飛ぶ）','pre2'],[83,89,'人生の笑い話がまた増えた','（イエー！）','pre2'],
+ [89,94,'飛び石ひとつで ふっとぶ節約','（オー！ ウー！ イエー！）','ch2'],[94,99,'車検で発覚 ガッツリ請求','（オーマイガーー！）','ch2'],[99,105,'ガラス交換で ハートが爆破','（バン！ バン！ バン！）','ch2'],[105,111,'こんな日々も、笑い飛ヴァーす','（アーハ！）','ch2'],
+ [111,114,'トビイシッ！ YEAH！','（トビイシ！）（YEAH！）','fin'],[114,116,'トビ！','（トビ！）','fin'],[116,119,'トビイシッ！ YEAH！','（トビイシ！）（YEAH！）','fin'],[119,121,'アーハ！','（トビッ！ トビ！）','fin'],[121,124,'トビイシッ！ YEAH！','（トビイシ！）（YEAH！）','fin'],[124,126,'トービッ！','（トビッ！）','fin'],[126,129,'トビトビ アーハ！','（トッ！ トビ！）（トッ！）（トビイシ！）','fin'],[129,131.54,'Foo！','（アーハ！）（アーハ！）','fin']
+];
+const $=s=>document.querySelector(s), audio=$('#audio'), canvas=$('#stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8698a3);scene.fog=new THREE.FogExp2(0xa9b4b5,.013);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,300);camera.position.set(8,5.4,12);
+scene.add(new THREE.HemisphereLight(0xe7f4ff,0x51463b,2.05));const key=new THREE.DirectionalLight(0xffe4be,3.1);key.position.set(-6,11,5);scene.add(key);const fill=new THREE.PointLight(0x9ce7e2,35,50);fill.position.set(4,5,-4);scene.add(fill);
+const mat=(c,r=.55,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const roadMat=mat(0x29323a,.94),snowMat=mat(0xd5d8d1,1),dark=mat(0x192127,.4),glassMat=new THREE.MeshPhysicalMaterial({color:0x9ec6cc,roughness:.18,metalness:.1,transparent:true,opacity:.64,clearcoat:1}),bodyMat=mat(0xe8c767,.3,.15),trim=mat(0xf4ead2,.4,.12),tyre=mat(0x191c1f,.83),lamp= new THREE.MeshStandardMaterial({color:0xfff1be,emissive:0xfca438,emissiveIntensity:1.4}),red=mat(0xdf594d,.42);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(250,250),snowMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.24;scene.add(ground);
+// A long winter road: leading lines carry the eye toward the tiny vanishing point.
+const road=new THREE.Mesh(new THREE.PlaneGeometry(8,240),roadMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.19,-85);scene.add(road);
+const laneMarks=[];for(let z=15;z>-190;z-=10){const mark=new THREE.Mesh(new THREE.BoxGeometry(.13,.035,3.8),mat(0xe8dfc4,.85));mark.position.set(0,-.16,z);scene.add(mark);laneMarks.push(mark)}
+const scenery=new THREE.Group();scene.add(scenery);const trees=[];for(let i=0;i<42;i++){for(const side of [-1,1]){const g=new THREE.Group();const h=2.1+Math.random()*2.8;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.08,.16,h*.38,6),mat(0x564c43));trunk.position.y=h*.19;g.add(trunk);for(let j=0;j<3;j++){const cone=new THREE.Mesh(new THREE.ConeGeometry(h*(.3-j*.055),h*.37,7),mat(j===0?0x476358:0x65796a));cone.position.y=h*.36+j*h*.2;g.add(cone)}g.position.set(side*(7+Math.random()*8),-.18,-i*5.6-8);g.scale.setScalar(.65+Math.random()*.5);scenery.add(g);trees.push(g)}}
+// Compact boxy road-trip car, fully built from Three.js primitives.
+const car=new THREE.Group();scene.add(car);const chassis=new THREE.Mesh(new THREE.BoxGeometry(2.85,.7,4.45),bodyMat);chassis.position.y=.75;car.add(chassis);const hood=new THREE.Mesh(new THREE.BoxGeometry(2.72,.36,1.1),trim);hood.position.set(0,1.1,-1.43);car.add(hood);const cabin=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.13,2.1),bodyMat);cabin.position.set(0,1.55,.12);car.add(cabin);
+const wind=new THREE.Mesh(new THREE.BoxGeometry(2.08,.82,.07),glassMat);wind.position.set(0,1.67,-.96);wind.rotation.x=-.23;car.add(wind);const backglass=new THREE.Mesh(new THREE.BoxGeometry(2.08,.8,.07),glassMat);backglass.position.set(0,1.64,1.17);backglass.rotation.x=.22;car.add(backglass);
+for(const s of [-1,1]){const win=new THREE.Mesh(new THREE.BoxGeometry(.055,.74,1.45),glassMat);win.position.set(s*1.22,1.61,.1);car.add(win);for(const z of [-1.4,1.4]){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.49,.49,.32,24),tyre);wheel.rotation.z=Math.PI/2;wheel.position.set(s*1.42,.52,z);car.add(wheel);const hub=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.34,16),mat(0xb7bbc0,.28,.7));hub.rotation.z=Math.PI/2;hub.position.copy(wheel.position);hub.position.x+=s*.025;car.add(hub)}const hl=new THREE.Mesh(new THREE.BoxGeometry(.46,.18,.08),lamp);hl.position.set(s*.9,.96,-2.27);car.add(hl);const tl=new THREE.Mesh(new THREE.BoxGeometry(.4,.22,.08),red);tl.position.set(s*.96,.92,2.26);car.add(tl)}
+const bumper=new THREE.Mesh(new THREE.BoxGeometry(2.88,.18,.14),mat(0xb8b6ad,.4,.5));bumper.position.set(0,.57,-2.27);car.add(bumper);
+// A ten-yen sized coin charm and windscreen crack, key story props.
+const coinMat=new THREE.MeshStandardMaterial({color:0xc4894c,metalness:.72,roughness:.28});const coin=new THREE.Mesh(new THREE.CylinderGeometry(.44,.44,.055,36),coinMat);coin.rotation.x=Math.PI/2;coin.position.set(-.2,1.69,-.88);car.add(coin);
+const crackMat=new THREE.LineBasicMaterial({color:0xfff3d7,transparent:true,opacity:.92});const crackGroup=new THREE.Group();const crackCenter=new THREE.Vector3(.1,1.76,-1.03);for(let a=0;a<12;a++){const ang=a*Math.PI/6+.16;const len=.4+Math.random()*.75;const points=[crackCenter,new THREE.Vector3(crackCenter.x+Math.cos(ang)*len,crackCenter.y+Math.sin(ang)*len,-1.035)];const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),crackMat);crackGroup.add(line);if(a%2===0){const p=points[1];const branch=new THREE.Line(new THREE.BufferGeometry().setFromPoints([p,new THREE.Vector3(p.x+Math.cos(ang+.7)*.38,p.y+Math.sin(ang+.7)*.38,-1.035)]),crackMat);crackGroup.add(branch)}}car.add(crackGroup);
+// The stone has a jaunty flight path that returns for each chorus.
+const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.36,1),mat(0x837f79,.92));scene.add(stone);const stoneTrailMat=new THREE.LineBasicMaterial({color:0xffdc73,transparent:true,opacity:.75});const trailPts=[];for(let i=0;i<34;i++){let t=i/33;trailPts.push(new THREE.Vector3(Math.sin(t*Math.PI*2)*4,1+Math.sin(t*Math.PI)*3,-13-t*8))}const trail=new THREE.Line(new THREE.BufferGeometry().setFromPoints(trailPts),stoneTrailMat);scene.add(trail);
+// Coins burst like confetti during each chorus.
+const coins=[];const coinGeo=new THREE.CylinderGeometry(.17,.17,.024,24);for(let i=0;i<32;i++){let c=new THREE.Mesh(coinGeo,coinMat);scene.add(c);coins.push({mesh:c,phase:Math.random()*Math.PI*2,seed:i})}
+// A roadside garage comes into view for the inspection verse.
+const garage=new THREE.Group();scene.add(garage);const shopWall=new THREE.Mesh(new THREE.BoxGeometry(10,5,6),mat(0xddd4bd,.9));shopWall.position.y=2.28;garage.add(shopWall);const roof=new THREE.Mesh(new THREE.BoxGeometry(10.8,.45,6.5),red);roof.position.y=4.95;garage.add(roof);const bay=new THREE.Mesh(new THREE.BoxGeometry(4.1,3.15,.16),dark);bay.position.set(0,1.75,-3.09);garage.add(bay);const sign=new THREE.Mesh(new THREE.BoxGeometry(5.1,.7,.14),mat(0xffe08a,.35));sign.position.set(0,4.18,-3.16);garage.add(sign);garage.position.set(8,0,-16);garage.visible=false;
+const bursts=new THREE.Group();scene.add(bursts);for(let i=0;i<60;i++){let b=new THREE.Mesh(new THREE.TetrahedronGeometry(.13+Math.random()*.17),[mat(0xffd65d),mat(0xff725b),mat(0xf3eee1)][i%3]);bursts.add(b);b.userData={a:i*Math.PI*2/60,r:2+Math.random()*4,y:Math.random()*4,s:Math.random()*3}}
+const spotlight=new THREE.PointLight(0xffd279,0,32);spotlight.position.set(0,7,1);scene.add(spotlight);
+
+function smooth(a,b,x){let t=THREE.MathUtils.clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)}
+function currentChapter(t){return chapters.find(c=>t>=c.start&&t<c.end)||chapters.at(-1)}
+function cueFor(t){return cues.find(c=>t>=c[0]&&t<c[1])}
+const camV=new THREE.Vector3(),pos=new THREE.Vector3(),target=new THREE.Vector3();let lastChapter='',audioCtx,analyser,dataArray,level=0,playStart=performance.now();
+function updateScene(t,dt){let ch=currentChapter(t), elapsed=t-ch.start, beat=level;
+ if(ch.id!==lastChapter){lastChapter=ch.id;$('#chapterKicker').textContent=chapters.indexOf(ch).toString().padStart(2,'0')+' / '+ch.label;$('#chapterTitle').textContent=ch.title;$('#creditName').textContent='CAMERA — '+ch.camera;$('#creditSmall').textContent=ch.comp;$('#credit').style.opacity='1';document.querySelectorAll('.chap-pill').forEach((p,i)=>p.classList.toggle('active',chapters[i]===ch))}
+ const palettes={open:[0x899ba5,0xaab4b5],v1:[0x778b94,0xb8c1bd],pre1:[0x576d7a,0x84979e],ch1:[0xc48755,0xe8caa0],v2:[0x526b7a,0x98aab1],pre2:[0x658786,0xb9c5b7],ch2:[0xc9694b,0xf0ac78],fin:[0x223950,0x64758c]};let [sky,fog]=palettes[ch.id];scene.background.setHex(sky);scene.fog.color.setHex(fog);key.color.setHex(ch.id.startsWith('ch')?0xffd195:ch.id==='fin'?0xffb56c:0xffead2);key.intensity=(ch.id==='fin'?3.8:2.65)+beat*.9;spotlight.intensity=ch.id==='fin'?18+beat*27:ch.id.startsWith('ch')?5+beat*15:0;
+ const fast=ch.id.startsWith('ch')||ch.id==='fin';
+ // Camera language changes with the lyric section: tracking, POV, intimate push, orbit, hero low angle.
+ if(ch.id==='open'){pos.set(5.3+Math.sin(t*.18)*1.2,4.7,9.5);target.set(0,1,-12)}
+ else if(ch.id==='v1'){let p=smooth(7,10,t);pos.set(7.5-p*5,3.1-p*.9,7-p*2);target.set(0,1.65,-3);}
+ else if(ch.id==='pre1'){pos.set(1.8,2.25,4.5-1.2*smooth(27,39,t));target.set(0,1.75,-.7)}
+ else if(ch.id==='ch1'){let ang=elapsed*.72;pos.set(Math.sin(ang)*9,4+Math.sin(ang*2)*.7,Math.cos(ang)*9);target.set(0,1,-1)}
+ else if(ch.id==='v2'){let q=smooth(61,65,t);pos.set(0,11-7*q,4.5-1*q);target.set(1.7,1,-5)}
+ else if(ch.id==='pre2'){pos.set(-5+elapsed*.12,3.6,5-elapsed*.12);target.set(0,1,-5)}
+ else if(ch.id==='ch2'){let ang=-elapsed*.72;pos.set(Math.sin(ang)*9,4.3,Math.cos(ang)*9);target.set(0,1,-1)}
+ else {let q=smooth(115,131.54,t);pos.set(0,3.3-q*1.1,10-3.7*q);target.set(0,1.3,-1)}
+ if(fast){pos.x+=Math.sin(t*2.1)*.13*beat;pos.y+=Math.cos(t*3)*.08*beat}camera.position.lerp(pos,1-Math.exp(-dt*2.4));camera.lookAt(target);
+ car.position.set(0,.02+Math.sin(t*5)*.035*(fast?.8:.28),Math.sin(t*.8)*.24);car.rotation.y=Math.sin(t*.55)*.035+(fast?Math.sin(t*2)*.035:0);car.rotation.z=Math.sin(t*3.2)*.008;
+ laneMarks.forEach((m,i)=>{m.position.z+=dt*(fast?18:10);if(m.position.z>19)m.position.z=-188});trees.forEach(g=>{g.position.z+=dt*(fast?17:9);if(g.position.z>20)g.position.z=-224-Math.random()*20});
+ const isGarage=ch.id==='v2';garage.visible=isGarage;garage.position.z=-14+Math.sin(elapsed*.32)*1.5;garage.position.x=7.2-smooth(61,68,t)*2.0;garage.rotation.y=-.12;
+ crackGroup.visible=t>6.3;crackGroup.scale.setScalar(1+Math.sin(t*7)*.018);
+ const coinActive=ch.id==='pre2'||fast;coins.forEach((o,i)=>{let theta=t*1.3+o.phase;let ramp=ch.id==='fin'?1:ch.id.startsWith('ch')?1:.18;o.mesh.visible=coinActive||i%6===0;o.mesh.position.set(Math.cos(theta)*o.seed*.14,1.4+Math.sin(theta*1.8)*.6+(Math.sin(t*3+i)*.08),-4-Math.sin(theta)*o.seed*.12);o.mesh.rotation.set(theta,theta*1.2,t+o.phase);o.mesh.scale.setScalar(ramp*(.45+(o.seed%4)*.12))});
+ let flight=(t%7)/7;let showStone=ch.id==='v1'||ch.id==='pre2'||fast;stone.visible=showStone;trail.visible=showStone;let f=flight*33;let idx=Math.min(32,Math.floor(f));let mix=f-idx;let pa=trailPts[idx],pb=trailPts[idx+1]||pa;stone.position.lerpVectors(pa,pb,mix);stone.rotation.set(t*2,t*3,t*2);
+ bursts.visible=fast;bursts.children.forEach((b,i)=>{let u=t*.9+b.userData.s;let r=b.userData.r*(.6+.4*Math.sin(t*2+i));b.position.set(Math.cos(b.userData.a+u)*r,Math.abs(Math.sin(u*1.6))*3+b.userData.y*.22,Math.sin(b.userData.a+u)*r-2);b.rotation.set(u,u*.6,u*.8);b.scale.setScalar(.75+beat*.75)});
+ trailMatOpacity(showStone?.65:.0);
+ camera.fov=ch.id==='ch2'&&elapsed<1.1?THREE.MathUtils.lerp(40,25,1-elapsed/1.1):42;camera.updateProjectionMatrix();
+ const cue=cueFor(t);$('#captionMain').textContent=cue?cue[2]:'';$('#captionEcho').textContent=cue?cue[3]:'';$('#captionMain').style.opacity=cue?'1':'0';$('#captionEcho').style.opacity=cue?'1':'0';
+ let word='';if(ch.id==='v1'&&elapsed>2&&elapsed<3.9)word='カツン！';else if(ch.id==='ch1'&&elapsed>2&&elapsed<6)word='バン！';else if(ch.id==='ch2'&&elapsed>8&&elapsed<11)word='爆破！';else if(ch.id==='fin'&&Math.floor(elapsed*1.9)%3!==2)word=['トビイシッ！','YEAH！','トビ！'][Math.floor(elapsed*1.9)%3];$('#graphicWord').textContent=word;$('#graphicWord').style.opacity=word?String(.72+beat*.28):'0';
+ }
+function trailMatOpacity(n){stoneTrailMat.opacity=n}
+function resize(){const r=$('#app').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+function fmt(s){return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`}
+function draw(){let t=audio.currentTime||0;let dt=Math.min(.05,(performance.now()-playStart)/1000);playStart=performance.now();if(analyser&& !audio.paused){analyser.getByteFrequencyData(dataArray);let sum=0;for(let i=1;i<18;i++)sum+=dataArray[i];level=THREE.MathUtils.lerp(level,sum/(17*255),.23)}else level*=.93;updateScene(t,dt);renderer.render(scene,camera);const ratio=Math.min(1,t/DURATION);$('#fill').style.width=(ratio*100)+'%';$('#knob').style.left=(ratio*100)+'%';$('#now').textContent=fmt(t);$('#total').textContent=fmt(DURATION);$('#seek').setAttribute('aria-valuenow',t.toFixed(1));requestAnimationFrame(draw)}
+chapters.forEach((c,i)=>{const b=document.createElement('button');b.className='chap-pill';b.textContent=c.label;b.title=c.title;b.onclick=()=>{audio.currentTime=c.start;audio.play().catch(()=>{})};$('#chapters').appendChild(b)});
+function setupAudio(){if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('Web Audio API unavailable');audioCtx=new AC();analyser=audioCtx.createAnalyser();analyser.fftSize=256;dataArray=new Uint8Array(analyser.frequencyBinCount);const src=audioCtx.createMediaElementSource(audio);src.connect(analyser);analyser.connect(audioCtx.destination);const recordingAudio=audioCtx.createMediaStreamDestination();analyser.connect(recordingAudio);audio._recordingAudio=recordingAudio}return audioCtx}
+$('#play').onclick=async()=>{if(audio.paused){try{try{const ctx=setupAudio();if(ctx.state==='suspended')await ctx.resume()}catch(graphError){console.warn('Audio analysis unavailable; playing the source directly.',graphError)}await audio.play();$('#play').textContent='Ⅱ';$('#play').setAttribute('aria-label','一時停止');$('#audioState').textContent='ORIGINAL TRACK · PLAYING'}catch(e){$('#audioState').textContent='再生できません · 音源を再リンクしてください';$('#fileHint').textContent='音源を再リンク ↗';$('#fileHint').style.pointerEvents='auto';$('#fileHint').style.opacity='1';$('#fileHint').style.cursor='pointer'}}else{audio.pause();$('#play').textContent='▶';$('#play').setAttribute('aria-label','再生');$('#audioState').textContent='PAUSED · PREVIZ READY'}};
+audio.addEventListener('ended',()=>{$('#play').textContent='▶';if(mediaRecorder?.state==='recording')mediaRecorder.stop();else $('#audioState').textContent='PLAYBACK COMPLETE'});audio.addEventListener('canplay',()=>{$('#audioState').textContent='ORIGINAL TRACK · READY';$('#loading').classList.add('hidden')});audio.addEventListener('error',()=>{$('#audioState').textContent='音源を開けません · 再リンクしてください';$('#loading').classList.add('hidden');$('#fileHint').textContent='音源を再リンク ↗';$('#fileHint').style.pointerEvents='auto';$('#fileHint').style.opacity='1';$('#fileHint').style.cursor='pointer'});
+$('#fileHint').onclick=()=>$('#audioFile').click();$('#audioFile').onchange=e=>{const f=e.target.files?.[0];if(!f)return;audio.src=URL.createObjectURL(f);audio.load();$('#audioState').textContent='選択した音源を読み込み中';$('#fileHint').textContent='♪ '+f.name};
+let mediaRecorder,recorded=[];$('#record').onclick=async()=>{const b=$('#record');if(mediaRecorder?.state==='recording'){mediaRecorder.stop();b.textContent='●';b.title='フル尺をWebMで録画';return}try{const ctx=setupAudio();if(ctx.state==='suspended')await ctx.resume();const stream=canvas.captureStream(30);audio._recordingAudio.stream.getAudioTracks().forEach(t=>stream.addTrack(t));const type=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));mediaRecorder=new MediaRecorder(stream,type?{mimeType:type,videoBitsPerSecond:8000000}:undefined);recorded=[];mediaRecorder.ondataavailable=e=>{if(e.data.size)recorded.push(e.data)};mediaRecorder.onstop=()=>{const blob=new Blob(recorded,{type:mediaRecorder.mimeType||'video/webm'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='piyon-toishi-previz.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);$('#audioState').textContent='WEBMを書き出しました'};audio.currentTime=0;mediaRecorder.start(1000);await audio.play();$('#play').textContent='Ⅱ';b.textContent='■';b.title='録画を停止して保存';$('#audioState').textContent='REC · 曲全体をリアルタイム録画中'}catch(e){$('#audioState').textContent='WebM録画に対応したブラウザで開いてください'}};
+const seek=$('#seek');function setSeek(e){const r=seek.getBoundingClientRect();audio.currentTime=THREE.MathUtils.clamp((e.clientX-r.left)/r.width,0,1)*DURATION}seek.addEventListener('pointerdown',e=>{seek.setPointerCapture(e.pointerId);setSeek(e)});seek.addEventListener('pointermove',e=>{if(e.buttons)setSeek(e)});seek.addEventListener('keydown',e=>{if(e.key==='ArrowRight')audio.currentTime=Math.min(DURATION,audio.currentTime+5);if(e.key==='ArrowLeft')audio.currentTime=Math.max(0,audio.currentTime-5);if(e.key==='Home')audio.currentTime=0;if(e.key==='End')audio.currentTime=DURATION});$('#volume').oninput=e=>audio.volume=Number(e.target.value);audio.volume=.82;$('#fullscreen').onclick=()=>document.fullscreenElement?document.exitFullscreen():$('#app').requestFullscreen?.();
+$('#loading').classList.add('hidden');$('#audioState').textContent='ORIGINAL TRACK · READY';updateScene(0,0.016);draw();
+</script>
+</body>
+</html>
